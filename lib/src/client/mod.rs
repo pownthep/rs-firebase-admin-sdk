@@ -14,7 +14,7 @@ use hyper::{
     client::{Client, HttpConnector},
     Body, Method, Request,
 };
-use hyper_openssl::HttpsConnector;
+use hyper_rustls::HttpsConnector;
 use serde::{de::DeserializeOwned, Serialize};
 use serde_json;
 use std::iter::Iterator;
@@ -22,8 +22,14 @@ use std::sync::Arc;
 use url_params::UrlParams;
 
 pub(crate) fn build_https_client() -> HyperClient {
-    let https_connector =
-        HttpsConnector::new().expect("Could not construct TLS connector for API client");
+    let https_connector = hyper_rustls::HttpsConnectorBuilder::new()
+        .with_native_roots()
+        .https_only()
+        .enable_http1()
+        .enable_http2()
+        .build();
+    // let https_connector =
+    //     HttpsConnector::new().expect("Could not construct TLS connector for API client");
 
     Client::builder().build(https_connector)
 }
